@@ -9,4 +9,3 @@ app = FastAPI()
 app.include_router(menu_router)
 app.include_router(submenu_router)
 app.include_router(dish_router)
-

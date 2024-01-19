@@ -33,8 +33,8 @@ def get_dish_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id
 
 
 @dish_router.post("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes",
-                     response_model=Dish_Pydantic,
-                     status_code=status.HTTP_201_CREATED)
+                  response_model=Dish_Pydantic,
+                  status_code=status.HTTP_201_CREATED)
 def create_dish(dish: Dish_Pydantic, target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
     check_menu_and_submenu(db, target_menu_id, target_submenu_id)
     new_dish = Dish(**dish.dict())
@@ -47,9 +47,9 @@ def create_dish(dish: Dish_Pydantic, target_menu_id: UUID, target_submenu_id: UU
 
 
 @dish_router.patch("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}",
-                      response_model=Dish_Pydantic)
+                   response_model=Dish_Pydantic)
 def update_dish_by_id(new_dish: Dish_Pydantic, target_menu_id: UUID,
-                         target_submenu_id: UUID, target_dish_id: UUID, db: Session = Depends(get_db)):
+                      target_submenu_id: UUID, target_dish_id: UUID, db: Session = Depends(get_db)):
     check_menu_and_submenu(db, target_menu_id, target_submenu_id)
     db_dish = db.query(Dish).filter(Dish.id == target_dish_id).first()
     if db_dish is None:
@@ -63,7 +63,8 @@ def update_dish_by_id(new_dish: Dish_Pydantic, target_menu_id: UUID,
 
 
 @dish_router.delete("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}")
-def delete_menu_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id: UUID, db: Session = Depends(get_db)):
+def delete_menu_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id: UUID,
+                      db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
         return JSONResponse(content="", status_code=200)
