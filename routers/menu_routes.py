@@ -12,7 +12,6 @@ menu_router = APIRouter()
 @menu_router.get("/api/v1/menus")
 def get_menu_list(db: Session = Depends(get_db)):
     menu_list = db.query(Menu).all()
-
     return menu_list
 
 
