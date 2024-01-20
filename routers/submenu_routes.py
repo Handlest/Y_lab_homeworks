@@ -6,10 +6,11 @@ from starlette.responses import JSONResponse
 from config import get_db
 from models import Menu, Submenu, Submenu_Pydantic, Dish
 
-submenu_router = APIRouter()
+submenu_router = APIRouter(prefix="/api/v1/menus/{target_menu_id}/submenus",
+                           tags=["submenu"])
 
 
-@submenu_router.get("/api/v1/menus/{target_menu_id}/submenus")
+@submenu_router.get("/")
 def get_submenu_list(target_menu_id: UUID, db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
@@ -17,7 +18,7 @@ def get_submenu_list(target_menu_id: UUID, db: Session = Depends(get_db)):
     return db.query(Submenu).filter(Submenu.menu_id == target_menu_id).all()
 
 
-@submenu_router.get("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}")
+@submenu_router.get("/{target_submenu_id}")
 def get_submenu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
@@ -31,7 +32,7 @@ def get_submenu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session
     return db_submenu
 
 
-@submenu_router.post("/api/v1/menus/{target_menu_id}/submenus",
+@submenu_router.post("/",
                      response_model=Submenu_Pydantic,
                      status_code=status.HTTP_201_CREATED)
 def create_submenu(submenu: Submenu_Pydantic, target_menu_id: UUID, db: Session = Depends(get_db)):
@@ -46,7 +47,7 @@ def create_submenu(submenu: Submenu_Pydantic, target_menu_id: UUID, db: Session 
     return new_submenu
 
 
-@submenu_router.patch("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}",
+@submenu_router.patch("/{target_submenu_id}",
                       response_model=Submenu_Pydantic)
 def update_submenu_by_id(new_submenu: Submenu_Pydantic, target_menu_id: UUID,
                          target_submenu_id: UUID, db: Session = Depends(get_db)):
@@ -63,7 +64,7 @@ def update_submenu_by_id(new_submenu: Submenu_Pydantic, target_menu_id: UUID,
     return db_submenu
 
 
-@submenu_router.delete("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}")
+@submenu_router.delete("/{target_submenu_id}")
 def delete_menu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:

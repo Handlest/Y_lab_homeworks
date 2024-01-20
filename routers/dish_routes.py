@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 from config import get_db
 from models import Menu, Submenu, Dish, Dish_Pydantic
 
-dish_router = APIRouter()
+dish_router = APIRouter(prefix="/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes", tags=["dish"])
 
 
 def check_menu_and_submenu(db: Session, menu_id: UUID, submenu_id: UUID):
@@ -18,12 +18,14 @@ def check_menu_and_submenu(db: Session, menu_id: UUID, submenu_id: UUID):
         raise HTTPException(status_code=404, detail="submenu not found")
 
 
-@dish_router.get("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes")
-def get_dishes_list(target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
+@dish_router.get("/")
+def get_dishes_list(target_submenu_id: UUID, db: Session = Depends(get_db)):
+    # Нет проверки наличия меню и подменю, т.к. один из тестов требует возвращать пустой ответ даже если
+    # меню или подменю не существует
     return db.query(Dish).filter(Dish.submenu_id == target_submenu_id).all()
 
 
-@dish_router.get("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}")
+@dish_router.get("/{target_dish_id}")
 def get_dish_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id: UUID, db: Session = Depends(get_db)):
     check_menu_and_submenu(db, target_menu_id, target_submenu_id)
     db_dish = db.query(Dish).filter(Dish.id == target_dish_id).first()
@@ -32,7 +34,7 @@ def get_dish_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id
     return db_dish
 
 
-@dish_router.post("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes",
+@dish_router.post("/",
                   response_model=Dish_Pydantic,
                   status_code=status.HTTP_201_CREATED)
 def create_dish(dish: Dish_Pydantic, target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
@@ -46,7 +48,7 @@ def create_dish(dish: Dish_Pydantic, target_menu_id: UUID, target_submenu_id: UU
     return new_dish
 
 
-@dish_router.patch("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}",
+@dish_router.patch("/{target_dish_id}",
                    response_model=Dish_Pydantic)
 def update_dish_by_id(new_dish: Dish_Pydantic, target_menu_id: UUID,
                       target_submenu_id: UUID, target_dish_id: UUID, db: Session = Depends(get_db)):
@@ -62,7 +64,7 @@ def update_dish_by_id(new_dish: Dish_Pydantic, target_menu_id: UUID,
     return db_dish
 
 
-@dish_router.delete("/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}")
+@dish_router.delete("/{target_dish_id}")
 def delete_menu_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id: UUID,
                       db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
