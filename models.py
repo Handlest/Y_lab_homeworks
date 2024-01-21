@@ -1,8 +1,10 @@
 import uuid
+from re import match
+
 from sqlalchemy.dialects.postgresql import UUID
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from config import Base
 
@@ -15,6 +17,14 @@ class Dish(Base):
     description = Column(String)
     price = Column(String)
     submenu_id = Column(UUID(as_uuid=True), ForeignKey('submenus.id'))
+
+    @validates('price')
+    def validate_price(self, _, value):
+        pattern = r'^\d+(\.\d{1,2})?$'
+        if match(pattern, value):
+            return value
+        else:
+            raise ValueError('Неверный формат цены')
 
 
 Dish_Pydantic = sqlalchemy_to_pydantic(Dish)

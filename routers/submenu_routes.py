@@ -5,6 +5,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from config import get_db
 from models import Menu, Submenu, Submenu_Pydantic, Dish
+from utils import check_menu_and_submenu
 
 submenu_router = APIRouter(prefix="/api/v1/menus/{target_menu_id}/submenus",
                            tags=["submenu"])
@@ -14,19 +15,14 @@ submenu_router = APIRouter(prefix="/api/v1/menus/{target_menu_id}/submenus",
 def get_submenu_list(target_menu_id: UUID, db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
-        raise HTTPException(status_code=404, detail="menu not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="menu not found")
     return db.query(Submenu).filter(Submenu.menu_id == target_menu_id).all()
 
 
 @submenu_router.get("/{target_submenu_id}")
 def get_submenu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
-    db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
-    if db_menu is None:
-        raise HTTPException(status_code=404, detail="menu not found")
-    db_submenu = db.query(Submenu).filter(Submenu.id == target_submenu_id and Submenu.menu_id == target_menu_id).first()
-    if db_submenu is None:
-        raise HTTPException(status_code=404, detail="submenu not found")
-
+    check_menu_and_submenu(db, target_menu_id, target_submenu_id, status.HTTP_404_NOT_FOUND)
+    db_submenu = db.query(Submenu).filter(Submenu.id == target_submenu_id).first()
     dishes_count = db.query(Dish).join(Submenu).filter(Submenu.menu_id == target_menu_id).count()
     db_submenu.dishes_count = dishes_count
     return db_submenu
@@ -38,7 +34,7 @@ def get_submenu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session
 def create_submenu(submenu: Submenu_Pydantic, target_menu_id: UUID, db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
-        raise HTTPException(status_code=404, detail="menu not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="menu not found")
     new_submenu = Submenu(**submenu.dict())
     new_submenu.menu_id = target_menu_id
     db.add(new_submenu)
@@ -51,12 +47,8 @@ def create_submenu(submenu: Submenu_Pydantic, target_menu_id: UUID, db: Session 
                       response_model=Submenu_Pydantic)
 def update_submenu_by_id(new_submenu: Submenu_Pydantic, target_menu_id: UUID,
                          target_submenu_id: UUID, db: Session = Depends(get_db)):
-    db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
-    if db_menu is None:
-        raise HTTPException(status_code=404, detail="Item not found")
+    check_menu_and_submenu(db, target_menu_id, target_submenu_id, status.HTTP_404_NOT_FOUND)
     db_submenu = db.query(Submenu).filter(Submenu.id == target_submenu_id).first()
-    if db_submenu is None:
-        raise HTTPException(status_code=404, detail="submenu not found")
     db_submenu.title = new_submenu.title
     db_submenu.description = new_submenu.description
     db.commit()
@@ -65,13 +57,9 @@ def update_submenu_by_id(new_submenu: Submenu_Pydantic, target_menu_id: UUID,
 
 
 @submenu_router.delete("/{target_submenu_id}")
-def delete_menu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
-    db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
-    if db_menu is None:
-        return JSONResponse(content="", status_code=200)
+def delete_submenu_by_id(target_menu_id: UUID, target_submenu_id: UUID, db: Session = Depends(get_db)):
+    check_menu_and_submenu(db, target_menu_id, target_submenu_id, status.HTTP_204_NO_CONTENT)
     db_submenu = db.query(Submenu).filter(Submenu.id == target_submenu_id).first()
-    if db_submenu is None:
-        return JSONResponse(content="", status_code=200)
     db.delete(db_submenu)
     db.commit()
-    return JSONResponse(content="", status_code=200)
+    return JSONResponse(content="Delete success!", status_code=status.HTTP_200_OK)
