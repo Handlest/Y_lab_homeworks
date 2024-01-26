@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic.types import UUID
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
@@ -20,10 +21,25 @@ def get_menu_by_id(target_menu_id: UUID, db: Session = Depends(get_db)):
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="menu not found")
-    submenus_count = db.query(Submenu).filter(Submenu.menu_id == target_menu_id).count()
-    dishes_count = db.query(Dish).join(Submenu).filter(Submenu.menu_id == target_menu_id).count()
+
+    submenus_count_query = (db.query(func.count(Submenu.id))
+                            .filter(Submenu.menu_id == target_menu_id)
+                            .subquery())
+
+    dishes_count_query = (db.query(func.count(Dish.id))
+                          .join(Submenu)
+                          .filter(Submenu.menu_id == target_menu_id)
+                          .subquery())
+
+    # Объединение двух подзапросов в один
+    combined_query = (db.query(submenus_count_query, dishes_count_query)
+                      .union(db.query(dishes_count_query, submenus_count_query))
+                      .first())
+
+    submenus_count, dishes_count = combined_query
     db_menu.submenus_count = submenus_count
     db_menu.dishes_count = dishes_count
+
     return db_menu
 
 

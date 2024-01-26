@@ -1,10 +1,28 @@
-version: "0.1"
+version: "0.2"
 services:
   db:
-    image: postgres
+    healthcheck:
+      test: ["CMD", "sh", "-c", "pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    image: postgres:15.1-alpine
     ports:
       - "${DB_PORT}:5432"
+    expose:
+      - "${DB_PORT}"
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_DATABASE}
+    restart: always
+
+  api:
+    network_mode: host
+    image: menu_app
+    build: ./
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=${DB_HOST}
+    restart: always

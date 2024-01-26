@@ -3,14 +3,17 @@
 
 ## Запуск базы данных в контейнере (Рекомендуется)
 Для запуска чистой базы данных в контейнере
-`docker-compose up --remove-orphans --force-recreate --build  -d`
+```
+docker-compose up --remove-orphans --force-recreate --build  -d
+```
 
-Для остановки контейнера `docker-compose down`
+Для остановки контейнера 
+```
+docker-compose down
+```
 
 Изменить настройки запуска контейнера и базы данных (Например, в случае если 5435 порт занят) можно в файле .env
 
-После того как контейнер был запущен, можно запускать fastAPI приложение
-`python -m uvicorn main:app --reload`
 ## Запуск базы данных в локальном postgreSQL (Не рекомендуется)
 
 ### Для Linux
@@ -59,5 +62,29 @@ DB_HOST=...
 DB_PORT=5432
 ```
 
-После настройки базы данных, можно запускать fastAPI приложение
+## Запуск приложения и установка зависимостей
+
+### Для Windows
+1)Создаём виртуальное окружение 
+```
+python -m venv venv
+venv\Scripts\activate.bat
+```
+2)Устанавливаем зависимости
+```
+pip install -r requirements.txt
+```
+
+### Для Linux
+1)Создаём виртуальное окружение 
+```
+sudo apt install -y python3-venv
+python3 -m venv venv
+source venv\bin\activate
+```
+2)Устанавливаем зависимости
+```
+pip install -r requirements.txt
+```
+После настройки базы данных и установки необходимых зависимостей, можно запускать fastAPI приложение
 `python -m uvicorn main:app --reload`

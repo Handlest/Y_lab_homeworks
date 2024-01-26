@@ -11,7 +11,6 @@ from config import Base
 
 class Dish(Base):
     __tablename__ = "dishes"
-
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     title = Column(String)
     description = Column(String)
