@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
 from config import get_db
-from models import Dish, Dish_Pydantic
+from models.models import Dish, Dish_Pydantic
 from utils import check_menu_and_submenu, validate_price
 
 dish_router = APIRouter(prefix="/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes", tags=["dish"])
@@ -46,14 +46,17 @@ def create_dish(dish: Dish_Pydantic, target_menu_id: UUID, target_submenu_id: UU
 def update_dish_by_id(new_dish: Dish_Pydantic, target_menu_id: UUID,
                       target_submenu_id: UUID, target_dish_id: UUID, db: Session = Depends(get_db)):
     check_menu_and_submenu(db, target_menu_id, target_submenu_id, status.HTTP_404_NOT_FOUND)
-    if not validate_price(new_dish.price):
+    if new_dish.price is not None and not validate_price(new_dish.price):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="price is not valid")
     db_dish = db.query(Dish).filter(Dish.id == target_dish_id).first()
     if db_dish is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="dish not found")
-    db_dish.title = new_dish.title
-    db_dish.description = new_dish.description
-    db_dish.price = new_dish.price
+    if new_dish.title:
+        db_dish.title = new_dish.title
+    if new_dish.description:
+        db_dish.description = new_dish.description
+    if new_dish.price:
+        db_dish.price = new_dish.price
     db.commit()
     db.refresh(db_dish)
     return db_dish

@@ -5,14 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a873023e-6bbf-4110-8d5d-194d55cf75c7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/crud_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/conftest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose-test.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pytest.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/crud_dish_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/crud_menu_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/crud_submenu_test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests_main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/Readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alembic.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/README" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/env.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/script.py.mako" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/migrations/versions/20cb10fb3b3b_inital_database.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/dish_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/dish_routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/menu_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/menu_routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routers/submenu_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/submenu_routes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_main.http" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/crud_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,10 +62,12 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yaml: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;FastAPI.restaurant-menu.executor&quot;: &quot;Run&quot;,
     &quot;Python.python -m uvicorn main:app --reload.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/riko/PycharmProjects/restaurant-menu/tests&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -64,7 +82,15 @@
     ]
   }
 }</component>
-  <component name="RunManager" selected="Python.python -m uvicorn main:app --reload">
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/tests" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/models" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.docker-compose.yaml: Compose Deployment">
     <configuration name="python -m uvicorn main:app --reload" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="restaurant-menu" />
       <option name="ENV_FILES" value="" />
@@ -103,8 +129,24 @@
       <option name="launchJavascriptDebuger" value="false" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="" />
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
         <item itemvalue="Python.python -m uvicorn main:app --reload" />
       </list>
     </recent_temporary>
@@ -112,7 +154,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-50da183f06c8-2887949eec09-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.13135.95" />
+        <option value="bundled-python-sdk-5a2391486177-2887949eec09-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.13763.11" />
       </set>
     </attachedChunks>
   </component>
@@ -136,7 +178,16 @@
       <workItem from="1706010206513" duration="2542000" />
       <workItem from="1706021858214" duration="7000" />
       <workItem from="1706094397645" duration="6862000" />
-      <workItem from="1706131913028" duration="16012000" />
+      <workItem from="1706131913028" duration="22201000" />
+      <workItem from="1706263623611" duration="3947000" />
+      <workItem from="1706346217655" duration="2445000" />
+      <workItem from="1706376561810" duration="17000" />
+      <workItem from="1706387102602" duration="4928000" />
+      <workItem from="1706392186716" duration="3595000" />
+      <workItem from="1706430873824" duration="9000" />
+      <workItem from="1706434601852" duration="601000" />
+      <workItem from="1706439668088" duration="3180000" />
+      <workItem from="1706450613925" duration="8083000" />
     </task>
     <servers />
   </component>

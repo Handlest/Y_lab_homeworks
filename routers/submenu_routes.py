@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
 from config import get_db
-from models import Menu, Submenu, Submenu_Pydantic, Dish
+from models.models import Menu, Submenu, Submenu_Pydantic, Dish
 from utils import check_menu_and_submenu
 
 submenu_router = APIRouter(prefix="/api/v1/menus/{target_menu_id}/submenus",
@@ -49,8 +49,10 @@ def update_submenu_by_id(new_submenu: Submenu_Pydantic, target_menu_id: UUID,
                          target_submenu_id: UUID, db: Session = Depends(get_db)):
     check_menu_and_submenu(db, target_menu_id, target_submenu_id, status.HTTP_404_NOT_FOUND)
     db_submenu = db.query(Submenu).filter(Submenu.id == target_submenu_id).first()
-    db_submenu.title = new_submenu.title
-    db_submenu.description = new_submenu.description
+    if new_submenu.title:
+        db_submenu.title = new_submenu.title
+    if new_submenu.description:
+        db_submenu.description = new_submenu.description
     db.commit()
     db.refresh(db_submenu)
     return db_submenu

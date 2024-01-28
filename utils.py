@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from pydantic.types import UUID
 from sqlalchemy.orm import Session
 from starlette import status
-from models import Menu, Submenu
+from models.models import Menu, Submenu, Dish
 
 
 def check_menu_and_submenu(db: Session, menu_id: UUID, submenu_id: UUID,
@@ -17,3 +17,35 @@ def check_menu_and_submenu(db: Session, menu_id: UUID, submenu_id: UUID,
 
 def validate_price(price: str):
     return len(price.split(".")[-1]) in (1, 2)
+
+
+def create_menu_json():
+    data = {
+        "title": "My menu 1",
+        "description": "My menu description 1"
+    }
+    return data
+
+
+def create_submenu_json():
+    data = {
+        "title": "My submenu 1",
+        "description": "My submenu description 1"
+    }
+    return data
+
+
+def create_dish_json(number: int):
+    if number == 1:
+        data = {
+            "title": "My dish 1",
+            "description": "My dish description 1",
+            "price": "12.50"
+        }
+    else:
+        data = {
+            "title": "My dish 2",
+            "description": "My dish description 2",
+            "price": "13.50"
+        }
+    return data

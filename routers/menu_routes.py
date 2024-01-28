@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
 from config import get_db
-from models import Menu_Pydantic, Menu, Submenu, Dish
+from models.models import Menu_Pydantic, Menu, Submenu, Dish
 
 menu_router = APIRouter(prefix="/api/v1/menus", tags=["menu"])
 
@@ -57,8 +57,10 @@ def update_menu_by_id(new_menu: Menu_Pydantic, target_menu_id: UUID, db: Session
     db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
     if db_menu is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
-    db_menu.title = new_menu.title
-    db_menu.description = new_menu.description
+    if new_menu.title:
+        db_menu.title = new_menu.title
+    if new_menu.description:
+        db_menu.description = new_menu.description
     db.commit()
     db.refresh(db_menu)
     return db_menu
