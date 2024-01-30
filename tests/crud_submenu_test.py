@@ -1,4 +1,4 @@
-import pytest
+from starlette.testclient import TestClient
 
 from utils import *
 
@@ -10,7 +10,7 @@ def get_submenu_url(menu_id, endpoint=''):
 
 class TestCrudSubmenus:
 
-    def test_submenu_create(self, create_menu, client, db):
+    def test_submenu_create(self, create_menu, client: TestClient, db: Session):
         submenu = create_submenu_json()
         response = client.post(f'http://localhost/api/v1/menus/{create_menu}/submenus', json=submenu)
         assert response.status_code == 201
@@ -25,7 +25,7 @@ class TestCrudSubmenus:
         assert db.query(Submenu).filter(Submenu.title == response.json()['title']).first() is not None
         assert db.query(Submenu).filter(Submenu.description == response.json()['description']).first() is not None
 
-    def test_submenu_read(self, create_menu, client, db):
+    def test_submenu_read(self, create_menu, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(f'http://localhost/api/v1/menus/{create_menu}/submenus')
         assert response.status_code == 200
@@ -47,7 +47,7 @@ class TestCrudSubmenus:
         assert response2.json()['description'] == response.json()['description'] == submenu['description']
 
 
-    def test_submenu_update(self, create_menu, client, db):
+    def test_submenu_update(self, create_menu, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(f'http://localhost/api/v1/menus/{create_menu}/submenus')
         assert response.status_code == 200
@@ -80,7 +80,7 @@ class TestCrudSubmenus:
         assert db.query(Submenu).filter(Submenu.title == "new submenu!").first() is not None
 
 
-    def test_submenu_delete(self, create_menu, client, db):
+    def test_submenu_delete(self, create_menu, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(f'http://localhost/api/v1/menus/{create_menu}/submenus')
         assert response.status_code == 200

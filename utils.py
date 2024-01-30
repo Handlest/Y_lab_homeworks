@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from pydantic.types import UUID
 from sqlalchemy.orm import Session
 from starlette import status
-from models.models import Menu, Submenu, Dish
+from models.models import Menu, Submenu
 
 
 def check_menu_and_submenu(db: Session, menu_id: UUID, submenu_id: UUID,

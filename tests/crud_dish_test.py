@@ -1,3 +1,5 @@
+from starlette.testclient import TestClient
+
 from utils import *
 
 
@@ -8,7 +10,7 @@ def get_dish_url(menu_id, submenu_id, endpoint=''):
 
 
 class TestCrudMenus:
-    def test_dish_create(self, create_submenu, client, db):
+    def test_dish_create(self, create_submenu, client: TestClient, db: Session):
         menu_id, submenu_id = create_submenu
         dish = create_dish_json()
         response = client.post(get_dish_url(menu_id, submenu_id), json=dish)
@@ -26,7 +28,7 @@ class TestCrudMenus:
         assert db.query(Dish).filter(Dish.description == response.json()['description']).first() is not None
         assert db.query(Dish).filter(Dish.price == response.json()['price']).first() is not None
 
-    def test_dish_read(self, create_submenu, client, db):
+    def test_dish_read(self, create_submenu, client: TestClient, db: Session):
         # Проверили, что база данных пуста
         menu_id, submenu_id = create_submenu
         response = client.get(get_dish_url(menu_id, submenu_id))
@@ -49,7 +51,7 @@ class TestCrudMenus:
         assert response.json()['description'] == dish['description']
         assert response.json()['price'] == dish['price']
 
-    def test_dish_update(self, create_submenu, client, db):
+    def test_dish_update(self, create_submenu, client: TestClient, db: Session):
         # Проверили, что база данных пуста
         menu_id, submenu_id = create_submenu
         response = client.get(get_dish_url(menu_id, submenu_id))
@@ -84,8 +86,7 @@ class TestCrudMenus:
         assert len(db.query(Dish).all()) == 1
         assert db.query(Dish).filter(Dish.title == "new dish!").first() is not None
 
-
-    def test_dish_delete(self, create_submenu, client, db):
+    def test_dish_delete(self, create_submenu, client: TestClient, db: Session):
         # Проверили, что база данных пуста
         menu_id, submenu_id = create_submenu
         response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')

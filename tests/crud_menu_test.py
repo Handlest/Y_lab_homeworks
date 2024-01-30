@@ -9,7 +9,7 @@ def get_menu_url(endpoint=''):
 
 
 class TestCrudMenus:
-    def test_menu_create(self, client, db):
+    def test_menu_create(self, client: TestClient, db: Session):
         menu = create_menu_json()
         response = client.post(get_menu_url(), json=menu)
         assert response.status_code == 201
@@ -24,7 +24,7 @@ class TestCrudMenus:
         assert db.query(Menu).filter(Menu.title == response.json()['title']).first() is not None
         assert db.query(Menu).filter(Menu.description == response.json()['description']).first() is not None
 
-    def test_menu_read(self, client, db):
+    def test_menu_read(self, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(get_menu_url())
         assert response.status_code == 200
@@ -45,7 +45,7 @@ class TestCrudMenus:
         assert response2.json()['title'] == response.json()['title'] == menu['title']
         assert response2.json()['description'] == response.json()['description'] == menu['description']
 
-    def test_menu_update(self, client: TestClient, db):
+    def test_menu_update(self, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(get_menu_url())
         assert response.status_code == 200
@@ -76,7 +76,7 @@ class TestCrudMenus:
         assert len(db.query(Menu).all()) == 1
         assert db.query(Menu).filter(Menu.title == "new menu!").first() is not None
 
-    def test_menu_delete(self, client: TestClient, db):
+    def test_menu_delete(self, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(get_menu_url())
         assert response.status_code == 200
