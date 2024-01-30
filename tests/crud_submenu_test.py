@@ -8,6 +8,7 @@ def get_submenu_url(menu_id, endpoint=''):
         endpoint = "/" + endpoint
     return f"http://localhost/api/v1/menus{menu_id}/submenus{endpoint}"
 
+
 class TestCrudSubmenus:
 
     def test_submenu_create(self, create_menu, client: TestClient, db: Session):
@@ -46,7 +47,6 @@ class TestCrudSubmenus:
         assert response2.json()['title'] == response.json()['title'] == submenu['title']
         assert response2.json()['description'] == response.json()['description'] == submenu['description']
 
-
     def test_submenu_update(self, create_menu, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
         response = client.get(f'http://localhost/api/v1/menus/{create_menu}/submenus')
@@ -78,7 +78,6 @@ class TestCrudSubmenus:
         assert response.json()['description'] == submenu['description']
         assert len(db.query(Submenu).all()) == 1
         assert db.query(Submenu).filter(Submenu.title == "new submenu!").first() is not None
-
 
     def test_submenu_delete(self, create_menu, client: TestClient, db: Session):
         # Проверяем, что база данных пуста

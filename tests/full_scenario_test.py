@@ -3,6 +3,7 @@ from starlette.testclient import TestClient
 
 from conftest import db
 from main import app
+from models.models import Dish
 from utils import *
 
 

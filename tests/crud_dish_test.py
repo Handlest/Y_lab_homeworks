@@ -1,5 +1,6 @@
 from starlette.testclient import TestClient
 
+from models.models import Dish
 from utils import *
 
 
