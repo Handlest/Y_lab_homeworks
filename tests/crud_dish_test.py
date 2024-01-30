@@ -1,90 +1,108 @@
-from utils import create_dish_json
+from utils import *
 
 
-def test_dish_create(create_submenu, client):
-    menu_id = create_submenu[0]
-    submenu_id = create_submenu[1]
-    response = client.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes',
-                           json=create_dish_json(1))
-    assert response.status_code == 201
+def get_dish_url(menu_id, submenu_id, endpoint=''):
+    if endpoint != '':
+        endpoint = "/" + endpoint
+    return f"http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes{endpoint}"
 
 
-def test_menu_read(create_submenu, client):
-    # Проверили, что база данных пуста
-    menu_id = create_submenu[0]
-    submenu_id = create_submenu[1]
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
-    assert response.status_code == 200
-    assert response.json() == []
+class TestCrudMenus:
+    def test_dish_create(self, create_submenu, client, db):
+        menu_id, submenu_id = create_submenu
+        dish = create_dish_json()
+        response = client.post(get_dish_url(menu_id, submenu_id), json=dish)
+        assert response.status_code == 201
 
-    # Создали блюдо
-    dish = create_dish_json(1)
-    response = client.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
-    dish_id = response.json()["id"]
+        # Проверяем что POST запрос возвращает правильные данные
+        assert dish['title'] == response.json()['title']
+        assert dish['description'] == response.json()['description']
+        assert dish['price'] == response.json()['price']
 
-    # Проверили, что в базе данных успешно создалось нужное блюдо
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-    assert response.status_code == 200
-    assert response.json()["id"] == dish_id
-    assert response.json()['title'] == dish['title']
-    assert response.json()['description'] == dish['description']
-    assert response.json()['price'] == dish['price']
+        # Проверяем что данные в базе данных совпадают с возвращаемыми
+        assert len(db.query(Dish).all()) == 1
+        assert db.query(Dish).filter(Dish.id == response.json()['id']).first() is not None
+        assert db.query(Dish).filter(Dish.title == response.json()['title']).first() is not None
+        assert db.query(Dish).filter(Dish.description == response.json()['description']).first() is not None
+        assert db.query(Dish).filter(Dish.price == response.json()['price']).first() is not None
+
+    def test_dish_read(self, create_submenu, client, db):
+        # Проверили, что база данных пуста
+        menu_id, submenu_id = create_submenu
+        response = client.get(get_dish_url(menu_id, submenu_id))
+        assert response.status_code == 200
+        assert response.json() == []
+        assert len(db.query(Dish).all()) == 0
+
+        # Добавляем информацию в базу данных
+        dish = create_dish_json()
+        response = client.post(get_dish_url(menu_id, submenu_id), json=dish)
+        assert response.status_code == 201
+        dish_id = response.json()["id"]
+        assert len(db.query(Dish).all()) == 1
+
+        # Проверяем, что GET запрос возвращает правильные данные
+        response = client.get(get_dish_url(menu_id, submenu_id, dish_id))
+        assert response.status_code == 200
+        assert response.json()["id"] == dish_id
+        assert response.json()['title'] == dish['title']
+        assert response.json()['description'] == dish['description']
+        assert response.json()['price'] == dish['price']
+
+    def test_dish_update(self, create_submenu, client, db):
+        # Проверили, что база данных пуста
+        menu_id, submenu_id = create_submenu
+        response = client.get(get_dish_url(menu_id, submenu_id))
+        assert response.status_code == 200
+        assert response.json() == []
+        assert len(db.query(Dish).all()) == 0
+
+        # Создали блюдо
+        dish = create_dish_json()
+        response = client.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
+        assert response.status_code == 201
+        dish_id = response.json()["id"]
+
+        # Проверили, что в базе данных успешно создалось нужное блюдо
+        response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
+        assert response.status_code == 200
+        assert response.json()["id"] == dish_id
+        assert response.json()['title'] == dish['title']
+        assert response.json()['description'] == dish['description']
+        assert response.json()['price'] == dish['price']
+        assert len(db.query(Dish).all()) == 1
+        assert db.query(Dish).filter(Dish.title == dish['title']).first() is not None
+
+        # Изменяем название блюда
+        response = client.patch(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
+                                json={"title": "new dish!"})
+        assert response.status_code == 200
+        assert response.json()['id'] == dish_id
+        assert response.json()['title'] == "new dish!"
+        assert response.json()['description'] == dish['description']
+        assert response.json()['price'] == dish['price']
+        assert len(db.query(Dish).all()) == 1
+        assert db.query(Dish).filter(Dish.title == "new dish!").first() is not None
 
 
-def test_menu_update(create_submenu, client):
-    # Проверили, что база данных пуста
-    menu_id = create_submenu[0]
-    submenu_id = create_submenu[1]
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
-    assert response.status_code == 200
-    assert response.json() == []
+    def test_dish_delete(self, create_submenu, client, db):
+        # Проверили, что база данных пуста
+        menu_id, submenu_id = create_submenu
+        response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
+        assert response.status_code == 200
+        assert response.json() == []
+        assert len(db.query(Dish).all()) == 0
 
-    # Создали блюдо
-    dish = create_dish_json(1)
-    response = client.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
-    dish_id = response.json()["id"]
+        # Создали блюдо
+        dish = create_dish_json()
+        response = client.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
+        assert response.status_code == 201
+        dish_id = response.json()["id"]
+        assert len(db.query(Dish).all()) == 1
 
-    # Проверили, что в базе данных успешно создалось нужное блюдо
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-    assert response.status_code == 200
-    assert response.json()["id"] == dish_id
-    assert response.json()['title'] == dish['title']
-    assert response.json()['description'] == dish['description']
-    assert response.json()['price'] == dish['price']
-
-    # Изменяем название блюда
-    response = client.patch(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
-                            json={"title": "new dish!"})
-    assert response.status_code == 200
-    assert response.json()['id'] == dish_id
-    assert response.json()['title'] == "new dish!"
-    assert response.json()['description'] == dish['description']
-    assert response.json()['price'] == dish['price']
-
-
-def test_menu_delete(create_submenu, client):
-    # Проверили, что база данных пуста
-    menu_id = create_submenu[0]
-    submenu_id = create_submenu[1]
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
-    assert response.status_code == 200
-    assert response.json() == []
-
-    # Создали блюдо
-    dish = create_dish_json(1)
-    response = client.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
-    dish_id = response.json()["id"]
-
-    # Проверили, что в базе данных успешно создалось нужное блюдо
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-    assert response.status_code == 200
-    assert response.json()["id"] == dish_id
-    assert response.json()['title'] == dish['title']
-    assert response.json()['description'] == dish['description']
-    assert response.json()['price'] == dish['price']
-
-    # Удаляем меню из базы данных и проверяем, что она действительно удалена
-    response = client.delete(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-    assert response.status_code == 200
-    response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
-    assert response.status_code == 404
+        # Удаляем меню из базы данных и проверяем, что она действительно удалена
+        response = client.delete(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
+        assert response.status_code == 200
+        response = client.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
+        assert response.status_code == 404
+        assert len(db.query(Dish).all()) == 0

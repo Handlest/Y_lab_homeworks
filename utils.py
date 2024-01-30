@@ -35,7 +35,7 @@ def create_submenu_json():
     return data
 
 
-def create_dish_json(number: int):
+def create_dish_json(number: int = 1):
     if number == 1:
         data = {
             "title": "My dish 1",

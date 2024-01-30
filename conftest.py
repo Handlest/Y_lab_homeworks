@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from config import Base, engine
+from config import Base, engine, get_test_db
 from main import app
 from utils import create_menu_json, create_submenu_json, create_dish_json
 
@@ -15,6 +15,13 @@ def prepare_database():
 @pytest.fixture
 def client():
     return TestClient(app)
+
+
+@pytest.fixture
+def db():
+    db = get_test_db()
+    yield db
+    db.close()
 
 
 @pytest.fixture

@@ -18,7 +18,6 @@ else:
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, enable_from_linting=False)
 Base = declarative_base()
-
 SessionLocal = sessionmaker(autoflush=False, bind=engine)
 
 
@@ -28,3 +27,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+if os.getenv("TEST_MODE") == "True":
+    def get_test_db():
+        db = SessionLocal()
+        return db

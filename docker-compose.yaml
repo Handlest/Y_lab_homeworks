@@ -13,7 +13,7 @@ services:
     healthcheck:
       test: [ "CMD", "sh", "-c", "pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}" ]
       timeout: 45s
-      interval: 5s
+      interval: 1s
       retries: 10
     restart: always
 
@@ -22,6 +22,8 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy

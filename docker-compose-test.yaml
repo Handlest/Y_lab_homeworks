@@ -23,6 +23,8 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+    ports:
+      - "8000:8000"
     depends_on:
       test_db:
         condition: service_healthy
