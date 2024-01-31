@@ -29,7 +29,7 @@ services:
       test_db:
         condition: service_healthy
     environment:
-      - DB_HOST=test_db
+      - DB_HOST=${TEST_DB_HOST}
       - TEST_MODE=True
     command:
       - sh

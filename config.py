@@ -10,7 +10,6 @@ if os.getenv("TEST_MODE") == "True":
     SQLALCHEMY_DATABASE_URL = (f'postgresql://{os.getenv("TEST_DB_USERNAME")}:'
                                f'{os.getenv("TEST_DB_PASSWORD")}@{os.getenv("TEST_DB_HOST")}:'
                                f'{os.getenv("TEST_DB_PORT")}/{os.getenv("TEST_DB_DATABASE")}')
-    print(SQLALCHEMY_DATABASE_URL)
 else:
     SQLALCHEMY_DATABASE_URL = (f'postgresql://{os.getenv("DB_USERNAME")}:'
                                f'{os.getenv("DB_PASSWORD")}@{os.getenv("DB_HOST")}:'
