@@ -17,8 +17,8 @@ services:
       retries: 10
     restart: always
 
+
   api:
-    network_mode: host
     build:
       context: .
       dockerfile: dockerfile

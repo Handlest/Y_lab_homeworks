@@ -1,11 +1,11 @@
-version: "2.4"
+version: "3.8"
 services:
   test_db:
     image: postgres:15.1-alpine
-    ports:
-      - "${TEST_DB_PORT}:5432"
     expose:
       - "${TEST_DB_PORT}"
+    ports:
+      - "${TEST_DB_PORT}:5432"
     environment:
       - POSTGRES_USER=${TEST_DB_USERNAME}
       - POSTGRES_PASSWORD=${TEST_DB_PASSWORD}
@@ -18,8 +18,8 @@ services:
       retries: 10
     restart: unless-stopped
 
+
   api:
-    network_mode: host
     build:
       context: .
       dockerfile: dockerfile
@@ -29,7 +29,7 @@ services:
       test_db:
         condition: service_healthy
     environment:
-      - DB_HOST=${TEST_DB_HOST}
+      - DB_HOST=test_db
       - TEST_MODE=True
     command:
       - sh
