@@ -1,6 +1,5 @@
 import uuid
 from re import match
-
 from sqlalchemy.dialects.postgresql import UUID
 from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 from sqlalchemy import Column, String, ForeignKey

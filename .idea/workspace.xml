@@ -5,7 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a873023e-6bbf-4110-8d5d-194d55cf75c7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/repository/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/repository/abstract_repository.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/repository/repository.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/app_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose-test.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose-test.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -170,6 +176,8 @@
       <workItem from="1706613054100" duration="10000" />
       <workItem from="1706617050718" duration="25270000" />
       <workItem from="1706691062486" duration="7000" />
+      <workItem from="1706745083919" duration="3879000" />
+      <workItem from="1706797861894" duration="1480000" />
     </task>
     <servers />
   </component>
