@@ -1,12 +1,14 @@
+from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
-from utils import *
+from models.models import Submenu
+from utils import create_submenu_json
 
 
 def get_submenu_url(menu_id, endpoint=''):
     if endpoint != '':
-        endpoint = "/" + endpoint
-    return f"http://localhost/api/v1/menus{menu_id}/submenus{endpoint}"
+        endpoint = '/' + endpoint
+    return f'http://localhost/api/v1/menus{menu_id}/submenus{endpoint}'
 
 
 class TestCrudSubmenus:
@@ -37,13 +39,13 @@ class TestCrudSubmenus:
         submenu = create_submenu_json()
         response = client.post(f'http://localhost/api/v1/menus/{create_menu}/submenus', json=submenu)
         assert response.status_code == 201
-        submenu_id = response.json()["id"]
+        submenu_id = response.json()['id']
         assert len(db.query(Submenu).all()) == 1
 
         # Проверяем, что GET запрос возвращает правильные данные
         response2 = client.get(f'http://localhost/api/v1/menus/{create_menu}/submenus/{submenu_id}')
         assert response2.status_code == 200
-        assert response2.json()["id"] == response.json()["id"] == submenu_id
+        assert response2.json()['id'] == response.json()['id'] == submenu_id
         assert response2.json()['title'] == response.json()['title'] == submenu['title']
         assert response2.json()['description'] == response.json()['description'] == submenu['description']
 
@@ -58,12 +60,12 @@ class TestCrudSubmenus:
         submenu = create_submenu_json()
         response = client.post(f'http://localhost/api/v1/menus/{create_menu}/submenus', json=submenu)
         assert response.status_code == 201
-        submenu_id = response.json()["id"]
+        submenu_id = response.json()['id']
 
         # Проверяем, что в базе данных создался первый вариант подменю
         response = client.get(f'http://localhost/api/v1/menus/{create_menu}/submenus/{submenu_id}')
         assert response.status_code == 200
-        assert response.json()["id"] == submenu_id
+        assert response.json()['id'] == submenu_id
         assert response.json()['title'] == submenu['title']
         assert response.json()['description'] == submenu['description']
         assert len(db.query(Submenu).all()) == 1
@@ -71,13 +73,13 @@ class TestCrudSubmenus:
 
         # Изменяем название подменю и проверяем изменённое значение в базе данных
         response = client.patch(f'http://localhost/api/v1/menus/{create_menu}/submenus/{submenu_id}',
-                                json={"title": "new submenu!"})
+                                json={'title': 'new submenu!'})
         assert response.status_code == 200
         assert response.json()['id'] == submenu_id
-        assert response.json()['title'] == "new submenu!"
+        assert response.json()['title'] == 'new submenu!'
         assert response.json()['description'] == submenu['description']
         assert len(db.query(Submenu).all()) == 1
-        assert db.query(Submenu).filter(Submenu.title == "new submenu!").first() is not None
+        assert db.query(Submenu).filter(Submenu.title == 'new submenu!').first() is not None
 
     def test_submenu_delete(self, create_menu, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
@@ -90,7 +92,7 @@ class TestCrudSubmenus:
         submenu = create_submenu_json()
         response = client.post(f'http://localhost/api/v1/menus/{create_menu}/submenus', json=submenu)
         assert response.status_code == 201
-        submenu_id = response.json()["id"]
+        submenu_id = response.json()['id']
         assert len(db.query(Submenu).all()) == 1
 
         # Удаляем подменю из базы данных и проверяем, что оно действительно удалено

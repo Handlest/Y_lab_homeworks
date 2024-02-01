@@ -1,11 +1,14 @@
+from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
-from utils import *
+
+from models.models import Menu
+from utils import create_menu_json
 
 
 def get_menu_url(endpoint=''):
     if endpoint != '':
-        endpoint = "/" + endpoint
-    return f"http://localhost/api/v1/menus{endpoint}"
+        endpoint = '/' + endpoint
+    return f'http://localhost/api/v1/menus{endpoint}'
 
 
 class TestCrudMenus:
@@ -35,13 +38,13 @@ class TestCrudMenus:
         menu = create_menu_json()
         response = client.post(get_menu_url(), json=menu)
         assert response.status_code == 201
-        menu_id = response.json()["id"]
+        menu_id = response.json()['id']
         assert len(db.query(Menu).all()) == 1
 
         # Проверяем, что GET запрос возвращает правильные данные
         response2 = client.get(get_menu_url(menu_id))
         assert response2.status_code == 200
-        assert response2.json()["id"] == response.json()["id"] == menu_id
+        assert response2.json()['id'] == response.json()['id'] == menu_id
         assert response2.json()['title'] == response.json()['title'] == menu['title']
         assert response2.json()['description'] == response.json()['description'] == menu['description']
 
@@ -56,25 +59,25 @@ class TestCrudMenus:
         menu = create_menu_json()
         response = client.post(get_menu_url(), json=menu)
         assert response.status_code == 201
-        menu_id = response.json()["id"]
+        menu_id = response.json()['id']
 
         # Проверяем, что в базе данных создался первый вариант меню
         response = client.get(get_menu_url(menu_id))
         assert response.status_code == 200
-        assert response.json()["id"] == menu_id
+        assert response.json()['id'] == menu_id
         assert response.json()['title'] == menu['title']
         assert response.json()['description'] == menu['description']
         assert len(db.query(Menu).all()) == 1
         assert db.query(Menu).filter(Menu.title == menu['title']).first() is not None
 
         # Изменяем название меню и проверяем изменённое значение в базе данных
-        response = client.patch(get_menu_url(menu_id), json={"title": "new menu!"})
+        response = client.patch(get_menu_url(menu_id), json={'title': 'new menu!'})
         assert response.status_code == 200
         assert response.json()['id'] == menu_id
-        assert response.json()['title'] == "new menu!"
+        assert response.json()['title'] == 'new menu!'
         assert response.json()['description'] == menu['description']
         assert len(db.query(Menu).all()) == 1
-        assert db.query(Menu).filter(Menu.title == "new menu!").first() is not None
+        assert db.query(Menu).filter(Menu.title == 'new menu!').first() is not None
 
     def test_menu_delete(self, client: TestClient, db: Session):
         # Проверяем, что база данных пуста
@@ -87,7 +90,7 @@ class TestCrudMenus:
         menu = create_menu_json()
         response = client.post(get_menu_url(), json=menu)
         assert response.status_code == 201
-        menu_id = response.json()["id"]
+        menu_id = response.json()['id']
         assert len(db.query(Menu).all()) == 1
         assert db.query(Menu).filter(Menu.id == menu_id).first() is not None
 

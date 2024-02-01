@@ -4,8 +4,8 @@ from starlette.testclient import TestClient
 
 from config import Base, engine, get_test_db
 from main import app
-from models.models import Menu, Submenu, Dish
-from utils import create_menu_json, create_submenu_json, create_dish_json
+from models.models import Dish, Menu, Submenu
+from utils import create_dish_json, create_menu_json, create_submenu_json
 
 
 @pytest.fixture(autouse=True)
@@ -33,6 +33,7 @@ def create_menu(client: TestClient, db: Session):
     db.commit()
     menu_id = db.query(Menu).filter(Menu.title == menu['title']).first().id
     return menu_id
+
 
 @pytest.fixture
 def create_submenu(create_menu, client: TestClient, db: Session):
@@ -65,4 +66,3 @@ def create_dish(create_submenu, client: TestClient, db: Session):
     db.commit()
     dish_id = db.query(Dish).filter(Dish.title == dish['title']).first().id
     return menu_id, submenu_id, dish_id
-

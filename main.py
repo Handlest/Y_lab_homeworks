@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from config import Base, engine
 from routers.dish_routes import dish_router
 from routers.menu_routes import menu_router

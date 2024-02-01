@@ -30,5 +30,3 @@ services:
     environment:
       - DB_HOST=${DB_HOST}
     restart: always
-
-

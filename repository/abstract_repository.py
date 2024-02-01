@@ -5,12 +5,15 @@ class AbstractRepository(ABC):
     @abstractmethod
     def find_one_by_id(self):
         raise NotImplementedError
+
     @abstractmethod
     def find_all(self):
         raise NotImplementedError
+
     @abstractmethod
     def update_by_id(self):
         raise NotImplementedError
+
     @abstractmethod
     def delete_by_id(self):
         raise NotImplementedError
@@ -18,6 +21,7 @@ class AbstractRepository(ABC):
 
 class SQLAlchemyRepository(AbstractRepository):
     model = None
+
     def find_one_by_id(self):
         pass
 
