@@ -1,35 +1,43 @@
 from abc import ABC, abstractmethod
 
+from sqlalchemy import insert
+
+from config import get_db
+
 
 class AbstractRepository(ABC):
     @abstractmethod
-    def find_one_by_id(self):
+    async def find_one_by_id(self):
         raise NotImplementedError
 
     @abstractmethod
-    def find_all(self):
+    async def find_all(self):
         raise NotImplementedError
 
     @abstractmethod
-    def update_by_id(self):
+    async def update_by_id(self):
         raise NotImplementedError
 
     @abstractmethod
-    def delete_by_id(self):
+    async def delete_by_id(self):
         raise NotImplementedError
 
 
 class SQLAlchemyRepository(AbstractRepository):
     model = None
 
-    def find_one_by_id(self):
+    async def find_one_by_id(self):
+        async with get_db() as session:
+            stmt = insert(self.model).values(**data).returning(self.model)
+            res = await session.execute(stmt)
+            await session.commit()
+            return res.scalar_one()
+
+    async def find_all(self):
         pass
 
-    def find_all(self):
+    async def update_by_id(self):
         pass
 
-    def update_by_id(self):
-        pass
-
-    def delete_by_id(self):
+    async def delete_by_id(self):
         pass

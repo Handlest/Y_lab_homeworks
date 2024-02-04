@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic.types import UUID
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy import func, select
+from sqlalchemy.engine import ChunkedIteratorResult
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -11,67 +12,59 @@ from models.models import Dish, Menu, Menu_Pydantic, Submenu
 menu_router = APIRouter(prefix='/api/v1/menus', tags=['menu'])
 
 
-@menu_router.get('/')
-def get_menu_list(db: Session = Depends(get_db)):
-    menu_list = db.query(Menu).all()
-    return menu_list
+@menu_router.get('')
+async def get_menu_list(db: AsyncSession = Depends(get_db)):
+    menu_list: ChunkedIteratorResult = await db.execute(select(Menu))
+    return menu_list.scalars().all()
 
 
 @menu_router.get('/{target_menu_id}')
-def get_menu_by_id(target_menu_id: UUID, db: Session = Depends(get_db)):
-    db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
+async def get_menu_by_id(target_menu_id: UUID, db: AsyncSession = Depends(get_db)):
+    db_menu: ChunkedIteratorResult = await db.get(Menu, target_menu_id)
     if db_menu is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='menu not found')
 
-    submenus_count_query = (db.query(func.count(Submenu.id))
-                            .filter(Submenu.menu_id == target_menu_id)
-                            .subquery())
+    dishes_stmt = select(func.count(Dish.id)).join(Submenu).where(Submenu.menu_id == target_menu_id).scalar_subquery()
 
-    dishes_count_query = (db.query(func.count(Dish.id))
-                          .join(Submenu)
-                          .filter(Submenu.menu_id == target_menu_id)
-                          .subquery())
+    submenus_stmt = select(func.count(Submenu.id)).where(Submenu.menu_id == target_menu_id).scalar_subquery()
 
     # Объединение двух подзапросов в один
-    combined_query = (db.query(submenus_count_query, dishes_count_query)
-                      .union(db.query(dishes_count_query, submenus_count_query))
-                      .first())
+    combined_query = await db.execute(select(Menu, submenus_stmt, dishes_stmt).where(Menu.id == target_menu_id))
 
-    submenus_count, dishes_count = combined_query
-    db_menu.submenus_count = submenus_count
-    db_menu.dishes_count = dishes_count
+    result = combined_query.fetchall()
 
+    db_menu.submenus_count = result[0][1]
+    db_menu.dishes_count = result[0][2]
     return db_menu
 
 
-@menu_router.post('/', response_model=Menu_Pydantic, status_code=status.HTTP_201_CREATED)
-def create_menu(menu: Menu_Pydantic, db: Session = Depends(get_db)):
+@menu_router.post('', response_model=Menu_Pydantic, status_code=status.HTTP_201_CREATED)
+async def create_menu(menu: Menu_Pydantic, db: AsyncSession = Depends(get_db)):
     new_menu = Menu(**menu.dict())
     db.add(new_menu)
-    db.commit()
-    db.refresh(new_menu)
+    await db.commit()
     return new_menu
 
 
 @menu_router.patch('/{target_menu_id}', response_model=Menu_Pydantic)
-def update_menu_by_id(new_menu: Menu_Pydantic, target_menu_id: UUID, db: Session = Depends(get_db)):
-    db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
+async def update_menu_by_id(new_menu: Menu_Pydantic, target_menu_id: UUID, db: AsyncSession = Depends(get_db)):
+    db_menu = await db.get(Menu, target_menu_id)
     if db_menu is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Item not found')
     if new_menu.title:
         db_menu.title = new_menu.title
     if new_menu.description:
         db_menu.description = new_menu.description
-    db.commit()
-    db.refresh(db_menu)
+    await db.commit()
+    await db.refresh(db_menu)
     return db_menu
 
 
 @menu_router.delete('/{target_menu_id}')
-def delete_menu_by_id(target_menu_id: UUID, db: Session = Depends(get_db)):
-    db_menu = db.query(Menu).filter(Menu.id == target_menu_id).first()
+async def delete_menu_by_id(target_menu_id: UUID, db: AsyncSession = Depends(get_db)):
+    db_menu = await db.get(Menu, target_menu_id)
     if db_menu is None:
         return JSONResponse(content='Not found', status_code=status.HTTP_204_NO_CONTENT)
-    db.delete(db_menu)
-    db.commit()
+    await db.delete(db_menu)
+    await db.commit()
     return JSONResponse(content='Delete success!', status_code=status.HTTP_200_OK)
