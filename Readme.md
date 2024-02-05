@@ -19,3 +19,9 @@ docker-compose down
 docker-compose -f docker-compose-test.yaml up --remove-orphans --force-recreate --build
 ```
 Для остановки базы данных и приложения: ctrl+c
+
+## Просмотр документации
+Для просмотра документации можно перейти в браузере
+```
+http://localhost:8000/docs#/
+```
