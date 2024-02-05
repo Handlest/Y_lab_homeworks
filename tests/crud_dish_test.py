@@ -4,13 +4,7 @@ from sqlalchemy import select
 
 from models.models import Dish
 from tests.conftest import async_session_maker
-from utils import create_dish_json, create_submenu
-
-
-def get_dish_url(menu_id: str, submenu_id: str, endpoint='') -> str:
-    if endpoint != '':
-        endpoint = '/' + endpoint
-    return f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes{endpoint}'
+from utils import create_dish_json, create_submenu, reverse
 
 
 class TestCrudDishes:
@@ -19,7 +13,7 @@ class TestCrudDishes:
         async with async_session_maker() as db:
             menu_id, submenu_id = await create_submenu(db)
             dish = create_dish_json()
-            response = await ac.post(get_dish_url(menu_id, submenu_id), json=dish)
+            response = await ac.post(reverse(route_name='post_dish', menu_id=menu_id, submenu_id=submenu_id), json=dish)
             assert response.status_code == 201
 
             # Проверяем что POST запрос возвращает правильные данные
@@ -38,20 +32,20 @@ class TestCrudDishes:
         async with async_session_maker() as db:
             # Проверили, что база данных пуста
             menu_id, submenu_id = await create_submenu(db)
-            response = await ac.get(get_dish_url(menu_id, submenu_id))
+            response = await ac.get(reverse(route_name='get_dish_list', menu_id=menu_id, submenu_id=submenu_id))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Dish))).first() is None
 
             # Добавляем информацию в базу данных
             dish = create_dish_json()
-            response = await ac.post(get_dish_url(menu_id, submenu_id), json=dish)
+            response = await ac.post(reverse(route_name='post_dish', menu_id=menu_id, submenu_id=submenu_id), json=dish)
             assert response.status_code == 201
             dish_id = response.json()['id']
             assert (await db.execute(select(Dish))).first() is not None
 
             # Проверяем, что GET запрос возвращает правильные данные
-            response = await ac.get(get_dish_url(menu_id, submenu_id, dish_id))
+            response = await ac.get(reverse(route_name='get_dish_by_id', menu_id=menu_id, submenu_id=submenu_id, dish_id=dish_id))
             assert response.status_code == 200
             assert response.json()['id'] == dish_id
             assert response.json()['title'] == dish['title']
@@ -63,19 +57,19 @@ class TestCrudDishes:
         async with async_session_maker() as db:
             # Проверили, что база данных пуста
             menu_id, submenu_id = await create_submenu(db)
-            response = await ac.get(get_dish_url(menu_id, submenu_id))
+            response = await ac.get(reverse(route_name='get_dish_list', menu_id=menu_id, submenu_id=submenu_id))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Dish))).first() is None
 
             # Создали блюдо
             dish = create_dish_json()
-            response = await ac.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
+            response = await ac.post(reverse(route_name='post_dish', menu_id=menu_id, submenu_id=submenu_id), json=dish)
             assert response.status_code == 201
             dish_id = response.json()['id']
 
             # Проверили, что в базе данных успешно создалось нужное блюдо
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
+            response = await ac.get(reverse(route_name='get_dish_by_id', menu_id=menu_id, submenu_id=submenu_id, dish_id=dish_id))
             assert response.status_code == 200
             assert response.json()['id'] == dish_id
             assert response.json()['title'] == dish['title']
@@ -84,7 +78,7 @@ class TestCrudDishes:
             assert (await db.execute(select(Dish).where(Dish.title == response.json()['title']))).first() is not None
 
             # Изменяем название блюда
-            response = await ac.patch(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
+            response = await ac.patch(reverse(route_name='patch_dish', menu_id=menu_id, submenu_id=submenu_id, dish_id=dish_id),
                                       json={'title': 'new dish!'})
             assert response.status_code == 200
             assert response.json()['id'] == dish_id
@@ -98,21 +92,21 @@ class TestCrudDishes:
         async with async_session_maker() as db:
             # Проверили, что база данных пуста
             menu_id, submenu_id = await create_submenu(db)
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes')
+            response = await ac.get(reverse(route_name='get_dish_list', menu_id=menu_id, submenu_id=submenu_id))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Dish))).first() is None
 
             # Создали блюдо
             dish = create_dish_json()
-            response = await ac.post(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes', json=dish)
+            response = await ac.post(reverse(route_name='post_dish', menu_id=menu_id, submenu_id=submenu_id), json=dish)
             assert response.status_code == 201
             dish_id = response.json()['id']
             assert (await db.execute(select(Dish))).first() is not None
 
             # Удаляем блюдо из базы данных и проверяем, что оно действительно удалено
-            response = await ac.delete(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
+            response = await ac.delete(reverse(route_name='delete_dish', menu_id=menu_id, submenu_id=submenu_id, dish_id=dish_id))
             assert response.status_code == 200
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
+            response = await ac.get(reverse(route_name='get_dish_by_id', menu_id=menu_id, submenu_id=submenu_id, dish_id=dish_id))
             assert response.status_code == 404
             assert (await db.execute(select(Dish))).first() is None

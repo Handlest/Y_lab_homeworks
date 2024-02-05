@@ -3,13 +3,7 @@ from sqlalchemy import select
 
 from models.models import Submenu
 from tests.conftest import async_session_maker
-from utils import create_menu, create_submenu_json
-
-
-def get_submenu_url(menu_id, endpoint=''):
-    if endpoint != '':
-        endpoint = '/' + endpoint
-    return f'http://localhost/api/v1/menus{menu_id}/submenus{endpoint}'
+from utils import create_menu, create_submenu_json, reverse
 
 
 class TestCrudSubmenus:
@@ -17,7 +11,7 @@ class TestCrudSubmenus:
         async with async_session_maker() as db:
             menu_id = await create_menu(db)
             submenu = create_submenu_json()
-            response = await ac.post(f'http://localhost/api/v1/menus/{menu_id}/submenus', json=submenu)
+            response = await ac.post(reverse(route_name='post_submenu', menu_id=menu_id), json=submenu)
             assert response.status_code == 201
 
             # Проверяем что POST запрос возвращает правильные данные
@@ -33,19 +27,19 @@ class TestCrudSubmenus:
         async with async_session_maker() as db:
             menu_id = await create_menu(db)
             # Проверяем, что база данных пуста
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus')
+            response = await ac.get(reverse(route_name='get_submenu_list', menu_id=menu_id))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Submenu))).first() is None
 
             # Добавляем информацию в базу данных
             submenu = create_submenu_json()
-            response = await ac.post(f'http://localhost/api/v1/menus/{menu_id}/submenus', json=submenu)
+            response = await ac.post(reverse(route_name='post_submenu', menu_id=menu_id), json=submenu)
             assert response.status_code == 201
             submenu_id = response.json()['id']
 
             # Проверяем, что GET запрос возвращает правильные данные
-            response2 = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}')
+            response2 = await ac.get(reverse(route_name='get_submenu_by_id', menu_id=menu_id, submenu_id=submenu_id))
             assert response2.status_code == 200
             submenu_entity = (await db.execute(select(Submenu).where(Submenu.id == response2.json()['id']))).scalars().first()
             assert submenu_entity.title == response2.json()['title']
@@ -55,19 +49,19 @@ class TestCrudSubmenus:
         async with async_session_maker() as db:
             menu_id = await create_menu(db)
             # Проверяем, что база данных пуста
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus')
+            response = await ac.get(reverse(route_name='get_submenu_list', menu_id=menu_id))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Submenu))).first() is None
 
             # Создаём подменю в базе данных
             submenu = create_submenu_json()
-            response = await ac.post(f'http://localhost/api/v1/menus/{menu_id}/submenus', json=submenu)
+            response = await ac.post(reverse(route_name='post_submenu', menu_id=menu_id), json=submenu)
             assert response.status_code == 201
             submenu_id = response.json()['id']
 
             # Проверяем, что в базе данных создался первый вариант подменю
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}')
+            response = await ac.get(reverse(route_name='get_submenu_by_id', menu_id=menu_id, submenu_id=submenu_id))
             assert response.status_code == 200
             assert response.json()['id'] == submenu_id
             assert response.json()['title'] == submenu['title']
@@ -75,7 +69,7 @@ class TestCrudSubmenus:
             assert (await db.execute(select(Submenu))).first() is not None
 
             # Изменяем название подменю и проверяем изменённое значение в базе данных
-            response = await ac.patch(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}',
+            response = await ac.patch(reverse(route_name='patch_submenu', menu_id=menu_id, submenu_id=submenu_id),
                                       json={'title': 'new submenu!'})
             assert response.status_code == 200
             assert response.json()['id'] == submenu_id
@@ -87,21 +81,21 @@ class TestCrudSubmenus:
         async with async_session_maker() as db:
             menu_id = await create_menu(db)
             # Проверяем, что база данных пуста
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus')
+            response = await ac.get(reverse(route_name='get_submenu_list', menu_id=menu_id))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Submenu))).first() is None
 
             # Создаём подменю и проверяем его наличие в базе данных
             submenu = create_submenu_json()
-            response = await ac.post(f'http://localhost/api/v1/menus/{menu_id}/submenus', json=submenu)
+            response = await ac.post(reverse(route_name='post_submenu', menu_id=menu_id), json=submenu)
             assert response.status_code == 201
             submenu_id = response.json()['id']
             assert (await db.get(Submenu, submenu_id)) is not None
 
             # Удаляем подменю из базы данных и проверяем, что оно действительно удалено
-            response = await ac.delete(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}')
+            response = await ac.delete(reverse(route_name='delete_submenu', menu_id=menu_id, submenu_id=submenu_id))
             assert response.status_code == 200
-            response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}')
+            response = await ac.get(reverse(route_name='get_submenu_by_id', menu_id=menu_id, submenu_id=submenu_id))
             assert response.status_code == 404
             assert (await db.execute(select(Submenu))).first() is None

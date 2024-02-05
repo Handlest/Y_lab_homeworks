@@ -4,13 +4,7 @@ from sqlalchemy import select
 
 from models.models import Menu
 from tests.conftest import async_session_maker
-from utils import create_menu_json
-
-
-def get_menu_url(endpoint=''):
-    if endpoint != '':
-        endpoint = '/' + endpoint
-    return f'http://localhost/api/v1/menus{endpoint}'
+from utils import create_menu_json, reverse
 
 
 class TestCrudMenus:
@@ -18,7 +12,7 @@ class TestCrudMenus:
     async def test_menu_create(self, ac: AsyncClient, clear_database):
         async with async_session_maker() as db:
             menu = create_menu_json()
-            response = await ac.post(get_menu_url(), json=menu)
+            response = await ac.post(reverse(route_name='post_menu'), json=menu)
             assert response.status_code == 201
 
             # Проверяем что POST запрос возвращает правильные данные
@@ -34,19 +28,19 @@ class TestCrudMenus:
     async def test_menu_read(self, ac: AsyncClient, clear_database):
         async with async_session_maker() as db:
             # Проверяем, что база данных пуста
-            response = await ac.get(get_menu_url())
+            response = await ac.get(reverse(route_name='get_menu_list'))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Menu))).first() is None
 
             # Добавляем информацию в базу данных
             menu = create_menu_json()
-            response = await ac.post(get_menu_url(), json=menu)
+            response = await ac.post(reverse(route_name='post_menu'), json=menu)
             assert response.status_code == 201
             menu_id = response.json()['id']
 
             # Проверяем, что GET запрос возвращает правильные данные
-            response2 = await ac.get(get_menu_url(menu_id))
+            response2 = await ac.get(reverse(route_name='get_menu_by_id', menu_id=menu_id))
             assert response2.status_code == 200
             menu_entity = (await db.execute(select(Menu).where(Menu.id == response2.json()['id']))).scalars().first()
             assert menu_entity.title == response2.json()['title']
@@ -56,19 +50,19 @@ class TestCrudMenus:
     async def test_menu_update(self, ac: AsyncClient, clear_database):
         async with async_session_maker() as db:
             # Проверяем, что база данных пуста
-            response = await ac.get(get_menu_url())
+            response = await ac.get(reverse(route_name='get_menu_list'))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Menu))).first() is None
 
             # Создаём меню в базе данных
             menu = create_menu_json()
-            response = await ac.post(get_menu_url(), json=menu)
+            response = await ac.post(reverse(route_name='post_menu'), json=menu)
             assert response.status_code == 201
             menu_id = response.json()['id']
 
             # Проверяем, что в базе данных создался первый вариант меню
-            response = await ac.get(get_menu_url(menu_id))
+            response = await ac.get(reverse(route_name='get_menu_by_id', menu_id=menu_id))
             assert response.status_code == 200
             assert response.json()['id'] == menu_id
             assert response.json()['title'] == menu['title']
@@ -76,7 +70,7 @@ class TestCrudMenus:
             assert (await db.execute(select(Menu))).first() is not None
 
             # Изменяем название меню и проверяем изменённое значение в базе данных
-            response = await ac.patch(get_menu_url(menu_id), json={'title': 'new menu!'})
+            response = await ac.patch(reverse(route_name='get_menu_by_id', menu_id=menu_id), json={'title': 'new menu!'})
             assert response.status_code == 200
             assert response.json()['id'] == menu_id
             assert response.json()['title'] == 'new menu!'
@@ -87,21 +81,21 @@ class TestCrudMenus:
     async def test_menu_delete(self, ac: AsyncClient, clear_database):
         async with async_session_maker() as db:
             # Проверяем, что база данных пуста
-            response = await ac.get(get_menu_url())
+            response = await ac.get(reverse(route_name='get_menu_list'))
             assert response.status_code == 200
             assert response.json() == []
             assert (await db.execute(select(Menu))).first() is None
 
             # Создаём меню и проверяем его наличие в базе данных
             menu = create_menu_json()
-            response = await ac.post(get_menu_url(), json=menu)
+            response = await ac.post(reverse(route_name='post_menu'), json=menu)
             assert response.status_code == 201
             menu_id = response.json()['id']
             assert (await db.get(Menu, menu_id)) is not None
 
             # Удаляем меню из базы данных и проверяем, что оно действительно удалено
-            response = await ac.delete(get_menu_url(menu_id))
+            response = await ac.delete(reverse(route_name='delete_menu', menu_id=menu_id))
             assert response.status_code == 200
-            response = await ac.get(get_menu_url(menu_id))
+            response = await ac.get(reverse(route_name='get_menu_by_id', menu_id=menu_id))
             assert response.status_code == 404
             assert (await db.execute(select(Menu))).first() is None
