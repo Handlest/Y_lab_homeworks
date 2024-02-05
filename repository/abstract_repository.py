@@ -35,7 +35,7 @@ class SQLAlchemyRepository(AbstractRepository):
     redis: Redis = aioredis.from_url('redis://redis/1')
     model: Any = None
 
-    async def add_one(self, data: dict) -> dict:
+    async def add_one(self, data: dict):
         async with async_session() as session:
             new_instance = self.model(**data)
             session.add(new_instance)

@@ -28,7 +28,6 @@ class MenuService:
         menus_dict = menu.dict()
         await self.redis.delete(str(id))
         result_menu = await self.menus_repo.update_by_id(id, menus_dict)
-        await self.redis.set(str(id), json.dumps(result_menu.as_dict()))
         return result_menu
 
     async def get_menus(self):
