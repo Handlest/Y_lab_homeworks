@@ -1,5 +1,8 @@
 import os
+from typing import AsyncIterator
 
+import aioredis
+from aioredis import Redis
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -27,6 +30,15 @@ else:
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL, enable_from_linting=False)
 Base = declarative_base()
 async_session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+
+
+async def init_redis_pool() -> AsyncIterator[Redis]:
+    session = await aioredis.from_url('redis://redis', encoding='utf-8', decode_responses=True)
+    try:
+        yield session
+    finally:
+        session.close()
+        await session.wait_closed()
 
 
 async def get_db() -> AsyncSession:

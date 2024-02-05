@@ -30,3 +30,9 @@ services:
     environment:
       - DB_HOST=${DB_HOST}
     restart: always
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "${REDIS_PORT}:6379"

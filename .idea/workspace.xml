@@ -5,17 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a873023e-6bbf-4110-8d5d-194d55cf75c7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/routers/dependencies.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose-test.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose-test.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/env.example" beforeDir="false" afterPath="$PROJECT_DIR$/env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repository/abstract_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repository/abstract_repository.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repository/repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repository/repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/dish_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/dish_routes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/menu_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/menu_routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routers/submenu_routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/routers/submenu_routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/dish_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/dish_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/menu_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/menu_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/submenu_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/submenu_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/crud_dish_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/crud_dish_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -192,7 +197,7 @@
       <workItem from="1707103515134" duration="1013000" />
       <workItem from="1707118783299" duration="5602000" />
       <workItem from="1707130262833" duration="1477000" />
-      <workItem from="1707138808939" duration="5072000" />
+      <workItem from="1707138808939" duration="14141000" />
     </task>
     <servers />
   </component>

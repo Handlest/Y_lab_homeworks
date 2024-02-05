@@ -18,28 +18,26 @@ async def get_dishes_list(dish_service: Annotated[DishService, Depends(dish_serv
 
 
 @dish_router.get('/{target_dish_id}')
-async def get_dish_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
+async def get_dish_by_id(target_dish_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
     dish = await dish_service.get_dish_by_id(target_dish_id)
     return dish
 
 
 @dish_router.post('', response_model=Dish_Pydantic,
                   status_code=status.HTTP_201_CREATED)
-async def create_dish(dish: Dish_Pydantic, target_menu_id: UUID, target_submenu_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
+async def create_dish(dish: Dish_Pydantic, target_submenu_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
     new_dish = await dish_service.add_dish(target_submenu_id, dish)
     return new_dish
 
 
 @dish_router.patch('/{target_dish_id}',
                    response_model=Dish_Pydantic)
-async def update_dish_by_id(dish: Dish_Pydantic, target_menu_id: UUID,
-                            target_submenu_id: UUID, target_dish_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
+async def update_dish_by_id(dish: Dish_Pydantic, target_dish_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
     new_dish = await dish_service.update_dish(target_dish_id, dish)
     return new_dish
 
 
 @dish_router.delete('/{target_dish_id}')
-async def delete_dish_by_id(target_menu_id: UUID, target_submenu_id: UUID, target_dish_id: UUID,
-                            dish_service: Annotated[DishService, Depends(dish_service)]):
+async def delete_dish_by_id(target_dish_id: UUID, dish_service: Annotated[DishService, Depends(dish_service)]):
     response = await dish_service.delete_dish(target_dish_id)
     return response

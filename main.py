@@ -1,5 +1,6 @@
 import os
 
+import aioredis
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
@@ -10,6 +11,16 @@ from routers.submenu_routes import submenu_router
 app = FastAPI()
 
 load_dotenv()
+
+redis = None
+
+
+@app.on_event('startup')
+async def start_redis():
+    global redis
+    redis = await aioredis.from_url('redis://redis', db=1)
+
+
 if not os.getenv('TEST_MODE'):
     from config import Base, engine
 

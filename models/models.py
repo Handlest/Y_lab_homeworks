@@ -25,6 +25,12 @@ class Dish(Base):
         else:
             raise ValueError('Неверный формат цены')
 
+    def as_dict(self):
+        dictionary = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dictionary['id'] = str(dictionary['id'])
+        dictionary['submenu_id'] = str(dictionary['submenu_id'])
+        return dictionary
+
 
 Dish_Pydantic = sqlalchemy_to_pydantic(Dish)
 
@@ -38,6 +44,12 @@ class Submenu(Base):
     menu_id = Column(UUID(as_uuid=True), ForeignKey('menus.id'))
     dish = relationship('Dish', cascade='all, delete-orphan', backref='dishes')
 
+    def as_dict(self):
+        dictionary = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dictionary['id'] = str(dictionary['id'])
+        dictionary['menu_id'] = str(dictionary['menu_id'])
+        return dictionary
+
 
 Submenu_Pydantic = sqlalchemy_to_pydantic(Submenu)
 
@@ -49,6 +61,11 @@ class Menu(Base):
     title = Column(String)
     description = Column(String)
     submenus = relationship('Submenu', cascade='all, delete-orphan', backref='submenus')
+
+    def as_dict(self):
+        dictionary = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        dictionary['id'] = str(dictionary['id'])
+        return dictionary
 
 
 Menu_Pydantic = sqlalchemy_to_pydantic(Menu)

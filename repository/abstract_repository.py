@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+import aioredis
+from aioredis import Redis
 from pydantic.types import UUID
 from sqlalchemy import select
 
@@ -30,12 +32,11 @@ class AbstractRepository(ABC):
 
 
 class SQLAlchemyRepository(AbstractRepository):
-
+    redis: Redis = aioredis.from_url('redis://redis/1')
     model: Any = None
 
     async def add_one(self, data: dict) -> dict:
         async with async_session() as session:
-            print(data)
             new_instance = self.model(**data)
             session.add(new_instance)
             await session.commit()

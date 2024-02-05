@@ -35,3 +35,9 @@ services:
       - sh
       - -c
       - "pytest -v"
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "${REDIS_PORT}:6379"

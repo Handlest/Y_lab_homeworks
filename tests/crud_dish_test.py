@@ -110,7 +110,7 @@ class TestCrudDishes:
             dish_id = response.json()['id']
             assert (await db.execute(select(Dish))).first() is not None
 
-            # Удаляем меню из базы данных и проверяем, что она действительно удалена
+            # Удаляем блюдо из базы данных и проверяем, что оно действительно удалено
             response = await ac.delete(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
             assert response.status_code == 200
             response = await ac.get(f'http://localhost/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}')
