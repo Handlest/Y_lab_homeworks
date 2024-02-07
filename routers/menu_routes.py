@@ -5,7 +5,7 @@ from pydantic.types import UUID
 from starlette import status
 
 from models.models import CreateMenuPydantic, FullMenuPydantic, Menu_Pydantic
-from repository.response_errors import ResponseNotFoundError
+from repository.response_errors import ResponseMenuNotFoundError
 from routers.dependencies import menu_service
 from services.menu_service import MenuService
 
@@ -20,7 +20,7 @@ async def get_menu_list(_menu_service: Annotated[MenuService, Depends(menu_servi
 
 @menu_router.get('/{target_menu_id}', response_model=FullMenuPydantic, status_code=status.HTTP_200_OK,
                  summary='Get menu by id',
-                 responses={status.HTTP_404_NOT_FOUND: {'description': 'menu not found', 'model': ResponseNotFoundError}})
+                 responses={status.HTTP_404_NOT_FOUND: {'description': 'menu not found', 'model': ResponseMenuNotFoundError}})
 async def get_menu_by_id(target_menu_id: UUID, _menu_service: Annotated[MenuService, Depends(menu_service)]) -> FullMenuPydantic:
     menu: FullMenuPydantic = await _menu_service.get_menu_by_id(target_menu_id)
     return menu
@@ -34,7 +34,7 @@ async def create_menu(menu: CreateMenuPydantic, _menu_service: Annotated[MenuSer
 
 @menu_router.patch('/{target_menu_id}', response_model=Menu_Pydantic, summary='Change menu',
                    status_code=status.HTTP_200_OK,
-                   responses={status.HTTP_404_NOT_FOUND: {'description': 'menu not found', 'model': ResponseNotFoundError}})
+                   responses={status.HTTP_404_NOT_FOUND: {'description': 'menu not found', 'model': ResponseMenuNotFoundError}})
 async def update_menu_by_id(new_menu: Menu_Pydantic, target_menu_id: UUID, _menu_service: Annotated[MenuService, Depends(menu_service)]) -> Menu_Pydantic:
     new_menu = await _menu_service.update_menu(target_menu_id, new_menu)
     return new_menu

@@ -5,7 +5,10 @@ from pydantic.types import UUID
 from starlette import status
 
 from models.models import CreateSubmenuPydantic, FullSubmenuPydantic, Submenu_Pydantic
-from repository.response_errors import ResponseAlreadyTakenError, ResponseNotFoundError
+from repository.response_errors import (
+    ResponseAlreadyTakenError,
+    ResponseSubmenuNotFoundError,
+)
 from routers.dependencies import submenu_service
 from services.submenu_service import SubmenuService
 
@@ -21,7 +24,7 @@ async def get_submenu_list(_submenu_service: Annotated[SubmenuService, Depends(s
 
 @submenu_router.get('/{target_submenu_id}', response_model=FullSubmenuPydantic,
                     summary='Get submenu by id',
-                    responses={status.HTTP_404_NOT_FOUND: {'description': 'Submenu with given id was not found', 'model': ResponseNotFoundError}})
+                    responses={status.HTTP_404_NOT_FOUND: {'description': 'Submenu with given id was not found', 'model': ResponseSubmenuNotFoundError}})
 async def get_submenu_by_id(target_submenu_id: UUID, _submenu_service: Annotated[SubmenuService, Depends(submenu_service)]) -> FullSubmenuPydantic:
     submenu = await _submenu_service.get_submenu_by_id(target_submenu_id)
     return submenu
@@ -39,7 +42,7 @@ async def create_submenu(submenu: CreateSubmenuPydantic, target_menu_id: UUID,
 
 @submenu_router.patch('/{target_submenu_id}', response_model=Submenu_Pydantic, status_code=status.HTTP_200_OK,
                       summary='Change submenu by id',
-                      responses={status.HTTP_404_NOT_FOUND: {'description': 'Submenu with given id was not found', 'model': ResponseNotFoundError}})
+                      responses={status.HTTP_404_NOT_FOUND: {'description': 'Submenu with given id was not found', 'model': ResponseSubmenuNotFoundError}})
 async def update_submenu_by_id(new_submenu: Submenu_Pydantic,
                                target_submenu_id: UUID,
                                _submenu_service: Annotated[SubmenuService, Depends(submenu_service)]) -> Submenu_Pydantic:
