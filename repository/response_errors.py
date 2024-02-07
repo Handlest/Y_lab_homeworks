@@ -2,8 +2,8 @@ from pydantic import BaseModel
 
 
 class ResponseAlreadyTakenError(BaseModel):
-    response: str = 'The title is already taken'
+    response: str = 'The title has already been taken'
 
 
 class ResponseNotFoundError(BaseModel):
-    response: str = 'Not found'
+    response: str = 'Requested object with given id was not found'
