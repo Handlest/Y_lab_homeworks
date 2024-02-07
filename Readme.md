@@ -26,5 +26,5 @@ docker-compose -f docker-compose-test.yaml up --remove-orphans --force-recreate 
 ## Просмотр документации
 Для просмотра документации можно перейти в браузере
 ```
-http://localhost:8000/docs#/
+http://localhost:8000/redoc/
 ```
