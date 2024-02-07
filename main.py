@@ -8,7 +8,26 @@ from routers.dish_routes import dish_router
 from routers.menu_routes import menu_router
 from routers.submenu_routes import submenu_router
 
-app = FastAPI()
+tags_metadata = [
+    {
+        'name': 'menu',
+        'description': 'Operations with menus. You can create, delete, update and read all the menus. '
+        'Each menu contains fields: title, description',
+    },
+    {
+        'name': 'submenu',
+        'description': 'Operations with submenus. You can create, delete, update and read all the submenus. '
+                       'Each submenu contains fields: title, description',
+    },
+    {
+        'name': 'dish',
+        'description': 'Operations with dishes. You can create, delete, update and read all the dishes. '
+                       'Each dish contains fields: title, description, price',
+    },
+]
+
+
+app = FastAPI(openapi_tags=tags_metadata)
 
 load_dotenv()
 

@@ -18,6 +18,10 @@ class SubmenuService:
     async def add_submenu(self, menu_id: UUID, submenu: Submenu_Pydantic):
         submenu_dict = submenu.dict()
         submenu_dict['menu_id'] = menu_id
+        db_submenu = await self.submenus_repo.find_one_by_title(submenu_dict['title'])
+        if db_submenu:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail='submenu with given title already exists')
         result_submenu = await self.submenus_repo.add_one(submenu_dict)
         redis_menu = submenu_dict
         redis_menu['menu_id'] = str(redis_menu['menu_id'])
@@ -28,6 +32,9 @@ class SubmenuService:
     async def update_submenu(self, submenu_id: UUID, submenu: Submenu_Pydantic):
         submenu_dict = submenu.dict()
         await self.redis.delete(str(submenu_id))
+        db_submenu = (await self.submenus_repo.find_one_by_id(submenu_id)).fetchall()
+        if not db_submenu:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='submenu not found')
         result_submenu = await self.submenus_repo.update_by_id(submenu_id, submenu_dict)
         return result_submenu
 

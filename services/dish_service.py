@@ -18,6 +18,9 @@ class DishService:
     async def add_dish(self, submenu_id: UUID, dish: Dish_Pydantic):
         dish_dict = dish.dict()
         dish_dict['submenu_id'] = str(submenu_id)
+        db_dish = await self.dish_repo.find_one_by_title(dish_dict['title'])
+        if db_dish:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='dish with given title already exists')
         result_dish = await self.dish_repo.add_one(dish_dict)
         await self.redis.set(str(result_dish.id), json.dumps(result_dish.as_dict()))
         return result_dish
@@ -25,6 +28,9 @@ class DishService:
     async def update_dish(self, dish_id: UUID, dish: Dish_Pydantic):
         dish_dict = dish.dict()
         await self.redis.delete(str(dish_id))
+        db_dish = await self.dish_repo.find_one_by_id(dish_id)
+        if not db_dish:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='dish not found')
         result_dish = await self.dish_repo.update_by_id(dish_id, dish_dict)
         return result_dish
 

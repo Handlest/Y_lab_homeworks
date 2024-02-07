@@ -14,7 +14,7 @@ from config import Base
 class Dish(Base):
     __tablename__ = 'dishes'
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
-    title = Column(String)
+    title = Column(String, unique=True)
     description = Column(String)
     price = Column(String)
     submenu_id = Column(UUID(as_uuid=True), ForeignKey('submenus.id'))
@@ -37,11 +37,17 @@ class Dish(Base):
 Dish_Pydantic = sqlalchemy_to_pydantic(Dish)
 
 
+class CreateDishPydantic(BaseModel):
+    title: str
+    description: str
+    price: str
+
+
 class Submenu(Base):
     __tablename__ = 'submenus'
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    title = Column(String)
+    title = Column(String, unique=True)
     description = Column(String)
     menu_id = Column(UUID(as_uuid=True), ForeignKey('menus.id'))
     dish = relationship('Dish', cascade='all, delete-orphan', backref='dishes')
@@ -62,6 +68,14 @@ class FullSubmenuPydantic(BaseModel):
     description: str
     menu_id: UUID4
     dishes_count: int
+
+    class Config:
+        orm_mode = True
+
+
+class CreateSubmenuPydantic(BaseModel):
+    title: str
+    description: str
 
     class Config:
         orm_mode = True
@@ -88,9 +102,16 @@ class FullMenuPydantic(BaseModel):
     id: UUID4
     title: str
     description: str
-    submenus: UUID4 | None
     submenus_count: int
     dishes_count: int
+
+    class Config:
+        orm_mode = True
+
+
+class CreateMenuPydantic(BaseModel):
+    title: str
+    description: str
 
     class Config:
         orm_mode = True

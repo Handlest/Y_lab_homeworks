@@ -24,10 +24,13 @@ class MenuService:
         await self.redis.set(str(result_menu.id), json.dumps(redis_menu))
         return result_menu
 
-    async def update_menu(self, id: UUID, menu: Menu_Pydantic):
+    async def update_menu(self, menu_id: UUID, menu: Menu_Pydantic):
         menus_dict = menu.dict()
-        await self.redis.delete(str(id))
-        result_menu = await self.menus_repo.update_by_id(id, menus_dict)
+        await self.redis.delete(str(menu_id))
+        menu = (await self.menus_repo.find_one_by_id(menu_id)).fetchall()
+        if not menu:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='menu not found')
+        result_menu = await self.menus_repo.update_by_id(menu_id, menus_dict)
         return result_menu
 
     async def get_menus(self):
